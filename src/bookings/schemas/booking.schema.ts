@@ -22,6 +22,9 @@ export class Booking extends Document {
   @Field(() => ID)
   id: string;
 
+  @Field()
+  createdAt: Date;
+
   @Field(() => ID)
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })
   userId: string;

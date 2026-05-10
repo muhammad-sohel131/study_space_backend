@@ -21,6 +21,7 @@ type Booking {
   bookingType: String!
   center: Center
   centerId: ID!
+  createdAt: DateTime!
   endTime: DateTime!
   id: ID!
   paymentStatus: String!

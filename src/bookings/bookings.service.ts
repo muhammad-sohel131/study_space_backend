@@ -1,4 +1,5 @@
-import { Injectable, ConflictException, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, ConflictException, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Booking, BookingStatus } from './schemas/booking.schema';
@@ -8,15 +9,35 @@ import { Center } from '../centers/schemas/center.schema';
 
 @Injectable()
 export class BookingsService {
+  private readonly logger = new Logger(BookingsService.name);
+
   constructor(
     @InjectModel(Booking.name) private bookingModel: Model<Booking>,
     @InjectModel(Seat.name) private seatModel: Model<Seat>,
     @InjectModel(Center.name) private centerModel: Model<Center>,
   ) {}
 
+  @Cron(CronExpression.EVERY_MINUTE)
+  async handleStaleBookings() {
+    const tenMinutesAgo = new Date();
+    tenMinutesAgo.setMinutes(tenMinutesAgo.getMinutes() - 10);
+
+    const result = await this.bookingModel.updateMany(
+      {
+        status: BookingStatus.PENDING,
+        createdAt: { $lt: tenMinutesAgo }
+      },
+      { status: BookingStatus.CANCELLED }
+    );
+
+    if (result.modifiedCount > 0) {
+      this.logger.log(`Auto-cancelled ${result.modifiedCount} stale pending bookings.`);
+    }
+  }
+
   private isWithinCenterHours(time: Date, openingTime: string, closingTime: string): boolean {
-    const hours = time.getUTCHours();
-    const minutes = time.getUTCMinutes();
+    const hours = time.getHours();
+    const minutes = time.getMinutes();
     const timeStr = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
     
     return timeStr >= openingTime && timeStr <= closingTime;
