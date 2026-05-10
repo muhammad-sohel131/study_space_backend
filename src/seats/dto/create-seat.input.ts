@@ -1,4 +1,4 @@
-import { InputType, Field, Float } from '@nestjs/graphql';
+import { InputType, Field, Float, Int } from '@nestjs/graphql';
 import { IsNotEmpty, IsString, IsNumber, IsEnum, IsBoolean, IsOptional, IsMongoId } from 'class-validator';
 
 @InputType()
@@ -32,4 +32,14 @@ export class CreateSeatInput {
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
+
+  @Field(() => Int, { nullable: true })
+  @IsOptional()
+  @IsNumber()
+  x?: number;
+
+  @Field(() => Int, { nullable: true })
+  @IsOptional()
+  @IsNumber()
+  y?: number;
 }

@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { ObjectType, Field, ID, Float } from '@nestjs/graphql';
+import { ObjectType, Field, ID, Float, Int } from '@nestjs/graphql';
+import { Booking } from '../../bookings/schemas/booking.schema';
 import { Document, Schema as MongooseSchema } from 'mongoose';
 import { Center } from '../../centers/schemas/center.schema';
 
@@ -32,6 +33,17 @@ export class Seat extends Document {
   @Field()
   @Prop({ default: true })
   isActive: boolean;
+
+  @Field(() => Int, { nullable: true })
+  @Prop()
+  x?: number;
+
+  @Field(() => Int, { nullable: true })
+  @Prop()
+  y?: number;
+
+  @Field(() => [Booking], { nullable: true })
+  bookings?: Booking[];
 }
 
 export const SeatSchema = SchemaFactory.createForClass(Seat);

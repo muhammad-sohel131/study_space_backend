@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { BookingsService } from './bookings.service';
 import { BookingsResolver } from './bookings.resolver';
@@ -15,7 +15,7 @@ import { CentersModule } from '../centers/centers.module';
       { name: Seat.name, schema: SeatSchema },
       { name: Center.name, schema: CenterSchema },
     ]),
-    SeatsModule,
+    forwardRef(() => SeatsModule),
     CentersModule,
   ],
   providers: [BookingsService, BookingsResolver],

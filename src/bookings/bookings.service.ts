@@ -115,4 +115,12 @@ export class BookingsService {
 
     return availableSeats;
   }
+
+  async findBySeat(seatId: string): Promise<Booking[]> {
+    return this.bookingModel.find({
+      seatId,
+      status: { $in: [BookingStatus.CONFIRMED, BookingStatus.PENDING] },
+      endTime: { $gt: new Date() },
+    }).sort({ startTime: 1 }).exec();
+  }
 }

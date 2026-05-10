@@ -78,6 +78,8 @@ input CreateSeatInput {
   pricePerMonth: Float!
   seatNumber: String!
   type: String!
+  x: Int
+  y: Int
 }
 
 """
@@ -103,11 +105,13 @@ type Mutation {
   createCenter(createCenterInput: CreateCenterInput!): Center!
   createSeat(createSeatInput: CreateSeatInput!): Seat!
   deleteCenter(id: String!): Boolean!
+  deleteSeat(id: String!): Boolean!
   initPayment(bookingId: String!): InitPaymentResponse!
   login(loginInput: LoginInput!): AuthResponse!
   register(registerInput: RegisterInput!): AuthResponse!
   returnBook(orderId: String!): Order!
   updateCenter(updateCenterInput: UpdateCenterInput!): Center
+  updateSeat(updateSeatInput: UpdateSeatInput!): Seat
 }
 
 type Order {
@@ -152,6 +156,7 @@ enum Role {
 }
 
 type Seat {
+  bookings: [Booking!]
   centerId: ID!
   id: ID!
   isActive: Boolean!
@@ -159,6 +164,8 @@ type Seat {
   pricePerMonth: Float!
   seatNumber: String!
   type: String!
+  x: Int
+  y: Int
 }
 
 input UpdateCenterInput {
@@ -168,6 +175,18 @@ input UpdateCenterInput {
   location: String
   name: String
   openingTime: String
+}
+
+input UpdateSeatInput {
+  centerId: String
+  id: ID!
+  isActive: Boolean
+  pricePerHour: Float
+  pricePerMonth: Float
+  seatNumber: String
+  type: String
+  x: Int
+  y: Int
 }
 
 type User {
