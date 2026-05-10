@@ -30,6 +30,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       sortSchema: true,
       playground: true,
+      introspection: true,
     }),
     AuthModule,
     CentersModule,
@@ -41,4 +42,4 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     CloudinaryModule,
   ],
 })
-export class AppModule {}
+export class AppModule { }
