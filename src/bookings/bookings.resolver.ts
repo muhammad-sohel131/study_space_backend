@@ -1,16 +1,23 @@
-import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, ResolveField, Parent } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { BookingsService } from './bookings.service';
 import { Booking } from './schemas/booking.schema';
 import { CreateBookingInput } from './dto/create-booking.input';
 import { Seat } from '../seats/schemas/seat.schema';
+import { Center } from '../centers/schemas/center.schema';
 import { GqlAuthGuard } from '../auth/guards/gql-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../auth/schemas/user.schema';
+import { SeatsService } from '../seats/seats.service';
+import { CentersService } from '../centers/centers.service';
 
 @Resolver(() => Booking)
 export class BookingsResolver {
-  constructor(private readonly bookingsService: BookingsService) {}
+  constructor(
+    private readonly bookingsService: BookingsService,
+    private readonly seatsService: SeatsService,
+    private readonly centersService: CentersService,
+  ) {}
 
   @Mutation(() => Booking)
   @UseGuards(GqlAuthGuard)
@@ -25,6 +32,12 @@ export class BookingsResolver {
   @UseGuards(GqlAuthGuard)
   async getMyBookings(@CurrentUser() user: User): Promise<Booking[]> {
     return this.bookingsService.getMyBookings(user.id);
+  }
+
+  @Query(() => [Booking], { name: 'allBookings' })
+  @UseGuards(GqlAuthGuard)
+  async getAllBookings(): Promise<Booking[]> {
+    return this.bookingsService.findAll();
   }
 
   @Mutation(() => Booking)
@@ -43,5 +56,15 @@ export class BookingsResolver {
     @Args('endTime') endTime: string,
   ): Promise<Seat[]> {
     return this.bookingsService.getAvailableSeats(centerId, startTime, endTime);
+  }
+
+  @ResolveField(() => Seat)
+  async seat(@Parent() booking: Booking): Promise<Seat | null> {
+    return this.seatsService.findById(booking.seatId);
+  }
+
+  @ResolveField(() => Center)
+  async center(@Parent() booking: Booking): Promise<Center | null> {
+    return this.centersService.findOne(booking.centerId);
   }
 }

@@ -3,8 +3,8 @@ import { ObjectType, Field, ID, registerEnumType } from '@nestjs/graphql';
 import { Document } from 'mongoose';
 
 export enum Role {
-  STUDENT = 'student',
-  ADMIN = 'admin',
+  STUDENT = 'STUDENT',
+  ADMIN = 'ADMIN',
 }
 
 registerEnumType(Role, {

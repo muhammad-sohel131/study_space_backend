@@ -22,6 +22,9 @@ export class PaymentsService {
     const is_live = this.configService.get<string>('SSLCOMMERZ_IS_SANDBOX') === 'false';
     this.sslcz = new SSLCommerzPayment(store_id, store_passwd, is_live);
   }
+  async findAll(): Promise<Payment[]> {
+    return this.paymentModel.find().sort({ createdAt: -1 }).exec();
+  }
 
   async initPayment(userId: string, bookingId: string): Promise<InitPaymentResponse> {
     const booking = await this.bookingModel.findOne({ _id: bookingId, userId });
@@ -36,7 +39,7 @@ export class PaymentsService {
     }
 
     const tran_id = `REF_${Date.now()}_${bookingId}`;
-    
+
     // Create payment record
     const payment = new this.paymentModel({
       bookingId,
@@ -51,10 +54,10 @@ export class PaymentsService {
       total_amount: booking.totalPrice,
       currency: 'BDT',
       tran_id: tran_id,
-      success_url: `http://localhost:3000/api/payment/success?tran_id=${tran_id}`,
-      fail_url: `http://localhost:3000/api/payment/fail?tran_id=${tran_id}`,
-      cancel_url: `http://localhost:3000/api/payment/cancel?tran_id=${tran_id}`,
-      ipn_url: 'http://localhost:3000/api/payment/ipn',
+      success_url: `http://localhost:5000/api/payment/success?tran_id=${tran_id}`,
+      fail_url: `http://localhost:5000/api/payment/fail?tran_id=${tran_id}`,
+      cancel_url: `http://localhost:5000/api/payment/cancel?tran_id=${tran_id}`,
+      ipn_url: 'http://localhost:5000/api/payment/ipn',
       shipping_method: 'No',
       product_name: 'Seat Booking',
       product_category: 'Service',

@@ -16,4 +16,8 @@ export class SeatsService {
   async findByCenter(centerId: string): Promise<Seat[]> {
     return this.seatModel.find({ centerId, isActive: true }).exec();
   }
+
+  async findById(id: string): Promise<Seat | null> {
+    return this.seatModel.findById(id).exec();
+  }
 }

@@ -1,0 +1,178 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type AuthResponse {
+  accessToken: String!
+  user: User!
+}
+
+type Book {
+  author: String!
+  centerId: ID!
+  id: ID!
+  price: Float!
+  stock: Int!
+  title: String!
+  type: String!
+}
+
+type Booking {
+  bookingType: String!
+  center: Center
+  centerId: ID!
+  endTime: DateTime!
+  id: ID!
+  paymentStatus: String!
+  seat: Seat
+  seatId: ID!
+  startTime: DateTime!
+  status: String!
+  totalPrice: Float!
+  userId: ID!
+}
+
+type Center {
+  closingTime: String!
+  coverImage: String
+  id: ID!
+  location: String!
+  name: String!
+  openingTime: String!
+}
+
+input CreateBookInput {
+  author: String!
+  centerId: String!
+  price: Float!
+  stock: Int!
+  title: String!
+  type: String!
+}
+
+input CreateBookingInput {
+  bookingType: String!
+  centerId: String!
+  endTime: String!
+  seatId: String!
+  startTime: String!
+}
+
+input CreateCenterInput {
+  closingTime: String!
+  coverImage: String
+  location: String!
+  name: String!
+  openingTime: String!
+}
+
+input CreateOrderInput {
+  bookId: String!
+  quantity: Int! = 1
+}
+
+input CreateSeatInput {
+  centerId: String!
+  isActive: Boolean
+  pricePerHour: Float!
+  pricePerMonth: Float!
+  seatNumber: String!
+  type: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type InitPaymentResponse {
+  paymentUrl: String!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
+}
+
+type Mutation {
+  borrowBook(createOrderInput: CreateOrderInput!): Order!
+  buyBook(createOrderInput: CreateOrderInput!): Order!
+  cancelBooking(bookingId: String!): Booking!
+  createBook(createBookInput: CreateBookInput!): Book!
+  createBooking(createBookingInput: CreateBookingInput!): Booking!
+  createCenter(createCenterInput: CreateCenterInput!): Center!
+  createSeat(createSeatInput: CreateSeatInput!): Seat!
+  deleteCenter(id: String!): Boolean!
+  initPayment(bookingId: String!): InitPaymentResponse!
+  login(loginInput: LoginInput!): AuthResponse!
+  register(registerInput: RegisterInput!): AuthResponse!
+  returnBook(orderId: String!): Order!
+  updateCenter(updateCenterInput: UpdateCenterInput!): Center
+}
+
+type Order {
+  bookId: ID!
+  id: ID!
+  quantity: Int!
+  status: String!
+  type: String!
+  userId: ID!
+}
+
+type Payment {
+  amount: Float!
+  bookingId: ID!
+  id: ID!
+  status: String!
+  transactionId: String!
+  userId: ID!
+}
+
+type Query {
+  allBookings: [Booking!]!
+  allPayments: [Payment!]!
+  availableSeats(centerId: String!, endTime: String!, startTime: String!): [Seat!]!
+  books(centerId: String): [Book!]!
+  center(id: String!): Center!
+  centers: [Center!]!
+  myBookings: [Booking!]!
+  seats(centerId: String!): [Seat!]!
+}
+
+input RegisterInput {
+  email: String!
+  name: String!
+  password: String!
+  role: Role
+}
+
+enum Role {
+  ADMIN
+  STUDENT
+}
+
+type Seat {
+  centerId: ID!
+  id: ID!
+  isActive: Boolean!
+  pricePerHour: Float!
+  pricePerMonth: Float!
+  seatNumber: String!
+  type: String!
+}
+
+input UpdateCenterInput {
+  closingTime: String
+  coverImage: String
+  id: String!
+  location: String
+  name: String
+  openingTime: String
+}
+
+type User {
+  email: String!
+  id: ID!
+  name: String!
+  role: Role!
+}

@@ -1,6 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ObjectType, Field, ID, Float } from '@nestjs/graphql';
 import { Document, Schema as MongooseSchema } from 'mongoose';
+import { Seat } from '../../seats/schemas/seat.schema';
+import { Center } from '../../centers/schemas/center.schema';
 
 export enum BookingStatus {
   PENDING = 'pending',
@@ -55,6 +57,12 @@ export class Booking extends Document {
   @Field()
   @Prop({ required: true, enum: PaymentStatus, default: PaymentStatus.PENDING })
   paymentStatus: PaymentStatus;
+
+  @Field(() => Seat, { nullable: true })
+  seat?: Seat;
+
+  @Field(() => Center, { nullable: true })
+  center?: Center;
 }
 
 export const BookingSchema = SchemaFactory.createForClass(Booking);

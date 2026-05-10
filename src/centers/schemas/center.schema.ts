@@ -23,6 +23,10 @@ export class Center extends Document {
   @Field()
   @Prop({ required: true })
   closingTime: string; // e.g., '22:00'
+
+  @Field({ nullable: true })
+  @Prop()
+  coverImage?: string;
 }
 
 export const CenterSchema = SchemaFactory.createForClass(Center);
