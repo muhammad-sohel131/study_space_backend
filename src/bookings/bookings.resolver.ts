@@ -1,5 +1,7 @@
 import { Resolver, Query, Mutation, Args, ResolveField, Parent } from '@nestjs/graphql';
-import { UseGuards } from '@nestjs/common';
+import { UseGuards, Inject } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { BookingsService } from './bookings.service';
 import { Booking } from './schemas/booking.schema';
 import { CreateBookingInput } from './dto/create-booking.input';
@@ -17,6 +19,7 @@ export class BookingsResolver {
     private readonly bookingsService: BookingsService,
     private readonly seatsService: SeatsService,
     private readonly centersService: CentersService,
+    @InjectModel(User.name) private userModel: Model<User>,
   ) {}
 
   @Mutation(() => Booking)
@@ -66,5 +69,10 @@ export class BookingsResolver {
   @ResolveField(() => Center)
   async center(@Parent() booking: Booking): Promise<Center | null> {
     return this.centersService.findOne(booking.centerId);
+  }
+
+  @ResolveField(() => User, { nullable: true })
+  async user(@Parent() booking: Booking): Promise<User | null> {
+    return this.userModel.findById(booking.userId);
   }
 }

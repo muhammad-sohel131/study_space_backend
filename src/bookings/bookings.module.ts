@@ -5,6 +5,7 @@ import { BookingsResolver } from './bookings.resolver';
 import { Booking, BookingSchema } from './schemas/booking.schema';
 import { Seat, SeatSchema } from '../seats/schemas/seat.schema';
 import { Center, CenterSchema } from '../centers/schemas/center.schema';
+import { User, UserSchema } from '../auth/schemas/user.schema';
 import { SeatsModule } from '../seats/seats.module';
 import { CentersModule } from '../centers/centers.module';
 
@@ -14,6 +15,7 @@ import { CentersModule } from '../centers/centers.module';
       { name: Booking.name, schema: BookingSchema },
       { name: Seat.name, schema: SeatSchema },
       { name: Center.name, schema: CenterSchema },
+      { name: User.name, schema: UserSchema },
     ]),
     forwardRef(() => SeatsModule),
     CentersModule,

@@ -53,7 +53,7 @@ A robust, Student-focused Study Center Management API built with NestJS and Grap
 
 ## 🔐 Admin Credentials
 
-For testing and management purposes:
-- **Email**: `admin@studyspace.com`
-- **Password**: `Admin123!`
-*(Note: These should be changed immediately in a production environment)*
+For testing and management purposes, use the following credentials to access the Admin Panel:
+- **Email**: `admin@gmail.com`
+- **Password**: `123456`
+*(Note: These are hardcoded for evaluation. In a real scenario, use environment variables and hashed passwords)*

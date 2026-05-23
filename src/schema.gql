@@ -30,6 +30,7 @@ type Booking {
   startTime: DateTime!
   status: String!
   totalPrice: Float!
+  user: User
   userId: ID!
 }
 
