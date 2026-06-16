@@ -8,14 +8,16 @@ import { GqlAuthGuard } from '../auth/guards/gql-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../auth/schemas/user.schema';
+import { PaginationArgs } from '../common/dto/pagination.args';
+import { PaginatedCenters } from './dto/paginated-centers.response';
 
 @Resolver(() => Center)
 export class CentersResolver {
   constructor(private readonly centersService: CentersService) {}
 
-  @Query(() => [Center], { name: 'centers' })
-  async findAll(): Promise<Center[]> {
-    return this.centersService.findAll();
+  @Query(() => PaginatedCenters, { name: 'centers' })
+  async findAll(@Args() paginationArgs: PaginationArgs): Promise<PaginatedCenters> {
+    return this.centersService.findAll(paginationArgs);
   }
 
   @Query(() => Center, { name: 'center' })

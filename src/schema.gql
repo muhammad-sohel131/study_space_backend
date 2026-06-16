@@ -10,11 +10,14 @@ type AuthResponse {
 type Book {
   author: String!
   centerId: ID!
+  coverImageUrl: String
+  fullPdfUrl: String
   id: ID!
+  previewPdfUrl: String
   price: Float!
+  productType: String!
   stock: Int!
   title: String!
-  type: String!
 }
 
 type Booking {
@@ -46,10 +49,13 @@ type Center {
 input CreateBookInput {
   author: String!
   centerId: String!
+  coverImageUrl: String
+  fullPdfUrl: String
+  previewPdfUrl: String
   price: Float!
+  productType: String!
   stock: Int!
   title: String!
-  type: String!
 }
 
 input CreateBookingInput {
@@ -99,49 +105,72 @@ input LoginInput {
 }
 
 type Mutation {
-  borrowBook(createOrderInput: CreateOrderInput!): Order!
   buyBook(createOrderInput: CreateOrderInput!): Order!
   cancelBooking(bookingId: String!): Booking!
   createBook(createBookInput: CreateBookInput!): Book!
   createBooking(createBookingInput: CreateBookingInput!): Booking!
   createCenter(createCenterInput: CreateCenterInput!): Center!
   createSeat(createSeatInput: CreateSeatInput!): Seat!
+  deleteBook(id: String!): Boolean!
   deleteCenter(id: String!): Boolean!
   deleteSeat(id: String!): Boolean!
+  initOrderPayment(orderId: String!): InitPaymentResponse!
   initPayment(bookingId: String!): InitPaymentResponse!
   login(loginInput: LoginInput!): AuthResponse!
   register(registerInput: RegisterInput!): AuthResponse!
-  returnBook(orderId: String!): Order!
+  updateBook(updateBookInput: UpdateBookInput!): Book!
   updateCenter(updateCenterInput: UpdateCenterInput!): Center
   updateSeat(updateSeatInput: UpdateSeatInput!): Seat
 }
 
 type Order {
+  book: Book
   bookId: ID!
   id: ID!
+  paymentStatus: String!
   quantity: Int!
   status: String!
-  type: String!
+  totalAmount: Int!
   userId: ID!
+}
+
+type PaginatedBookings {
+  data: [Booking!]!
+  totalCount: Int!
+  totalPages: Int!
+}
+
+type PaginatedBooks {
+  data: [Book!]!
+  totalCount: Int!
+  totalPages: Int!
+}
+
+type PaginatedCenters {
+  data: [Center!]!
+  totalCount: Int!
+  totalPages: Int!
 }
 
 type Payment {
   amount: Float!
-  bookingId: ID!
+  bookingId: ID
   id: ID!
+  orderId: ID
   status: String!
   transactionId: String!
   userId: ID!
 }
 
 type Query {
-  allBookings: [Booking!]!
+  allBookings(limit: Int = 10, page: Int = 1): PaginatedBookings!
   allPayments: [Payment!]!
   availableSeats(centerId: String!, endTime: String!, startTime: String!): [Seat!]!
-  books(centerId: String): [Book!]!
+  books(centerId: String, limit: Int = 10, page: Int = 1): PaginatedBooks!
   center(id: String!): Center!
-  centers: [Center!]!
-  myBookings: [Booking!]!
+  centers(limit: Int = 10, page: Int = 1): PaginatedCenters!
+  myBookings(limit: Int = 10, page: Int = 1): PaginatedBookings!
+  myOrders: [Order!]!
   seats(centerId: String!): [Seat!]!
 }
 
@@ -168,6 +197,19 @@ type Seat {
   type: String!
   x: Int
   y: Int
+}
+
+input UpdateBookInput {
+  author: String
+  centerId: String
+  coverImageUrl: String
+  fullPdfUrl: String
+  id: String!
+  previewPdfUrl: String
+  price: Float
+  productType: String
+  stock: Int
+  title: String
 }
 
 input UpdateCenterInput {

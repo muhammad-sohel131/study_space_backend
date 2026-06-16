@@ -6,6 +6,8 @@ import { Booking, BookingStatus } from './schemas/booking.schema';
 import { CreateBookingInput } from './dto/create-booking.input';
 import { Seat } from '../seats/schemas/seat.schema';
 import { Center } from '../centers/schemas/center.schema';
+import { PaginationArgs } from '../common/dto/pagination.args';
+import { PaginatedBookings } from './dto/paginated-bookings.response';
 
 @Injectable()
 export class BookingsService {
@@ -97,12 +99,32 @@ export class BookingsService {
     return booking.save();
   }
 
-  async getMyBookings(userId: string): Promise<Booking[]> {
-    return this.bookingModel.find({ userId }).sort({ createdAt: -1 }).exec();
+  async getMyBookings(userId: string, paginationArgs: PaginationArgs): Promise<PaginatedBookings> {
+    const { page, limit } = paginationArgs;
+    const skip = (page - 1) * limit;
+
+    const [data, totalCount] = await Promise.all([
+      this.bookingModel.find({ userId }).sort({ createdAt: -1 }).skip(skip).limit(limit).exec(),
+      this.bookingModel.countDocuments({ userId }).exec()
+    ]);
+
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return { data, totalCount, totalPages };
   }
 
-  async findAll(): Promise<Booking[]> {
-    return this.bookingModel.find().sort({ createdAt: -1 }).exec();
+  async findAll(paginationArgs: PaginationArgs): Promise<PaginatedBookings> {
+    const { page, limit } = paginationArgs;
+    const skip = (page - 1) * limit;
+
+    const [data, totalCount] = await Promise.all([
+      this.bookingModel.find().sort({ createdAt: -1 }).skip(skip).limit(limit).exec(),
+      this.bookingModel.countDocuments().exec()
+    ]);
+
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return { data, totalCount, totalPages };
   }
 
   async cancelBooking(userId: string, bookingId: string): Promise<Booking> {

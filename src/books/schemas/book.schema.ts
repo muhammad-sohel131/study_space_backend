@@ -25,8 +25,20 @@ export class Book extends Document {
   stock: number;
 
   @Field()
-  @Prop({ required: true, enum: ['sell', 'borrow'] })
-  type: string;
+  @Prop({ required: true, enum: ['pdf', 'physical'] })
+  productType: string;
+
+  @Field({ nullable: true })
+  @Prop()
+  coverImageUrl?: string;
+
+  @Field({ nullable: true })
+  @Prop()
+  previewPdfUrl?: string;
+
+  @Field({ nullable: true })
+  @Prop()
+  fullPdfUrl?: string;
 
   @Field(() => ID)
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Center', required: true })

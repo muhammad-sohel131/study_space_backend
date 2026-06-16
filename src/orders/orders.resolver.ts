@@ -1,4 +1,4 @@
-import { Resolver, Mutation, Args } from '@nestjs/graphql';
+import { Resolver, Mutation, Query, Args } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { Order } from './schemas/order.schema';
@@ -20,21 +20,9 @@ export class OrdersResolver {
     return this.ordersService.buyBook(user.id, createOrderInput);
   }
 
-  @Mutation(() => Order)
+  @Query(() => [Order], { name: 'myOrders' })
   @UseGuards(GqlAuthGuard)
-  async borrowBook(
-    @CurrentUser() user: User,
-    @Args('createOrderInput') createOrderInput: CreateOrderInput,
-  ): Promise<Order> {
-    return this.ordersService.borrowBook(user.id, createOrderInput);
-  }
-
-  @Mutation(() => Order)
-  @UseGuards(GqlAuthGuard)
-  async returnBook(
-    @CurrentUser() user: User,
-    @Args('orderId') orderId: string,
-  ): Promise<Order> {
-    return this.ordersService.returnBook(user.id, orderId);
+  async myOrders(@CurrentUser() user: User): Promise<Order[]> {
+    return this.ordersService.myOrders(user.id);
   }
 }

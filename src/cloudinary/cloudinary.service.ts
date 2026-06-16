@@ -17,6 +17,7 @@ export class CloudinaryService {
       const upload = cloudinary.uploader.upload_stream(
         { 
           folder: 'studyspace_centers',
+          resource_type: 'auto',
           timeout: 60000 // 60 seconds
         },
         (error, result) => {

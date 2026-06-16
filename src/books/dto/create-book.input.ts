@@ -27,8 +27,20 @@ export class CreateBookInput {
 
   @Field()
   @IsNotEmpty()
-  @IsEnum(['sell', 'borrow'])
-  type: string;
+  @IsEnum(['pdf', 'physical'])
+  productType: string;
+
+  @Field({ nullable: true })
+  @IsString()
+  coverImageUrl?: string;
+
+  @Field({ nullable: true })
+  @IsString()
+  previewPdfUrl?: string;
+
+  @Field({ nullable: true })
+  @IsString()
+  fullPdfUrl?: string;
 
   @Field()
   @IsNotEmpty()

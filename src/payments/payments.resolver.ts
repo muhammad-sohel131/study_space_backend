@@ -20,6 +20,15 @@ export class PaymentsResolver {
     return this.paymentsService.initPayment(user.id, bookingId);
   }
 
+  @Mutation(() => InitPaymentResponse)
+  @UseGuards(GqlAuthGuard)
+  async initOrderPayment(
+    @CurrentUser() user: User,
+    @Args('orderId') orderId: string,
+  ): Promise<InitPaymentResponse> {
+    return this.paymentsService.initOrderPayment(user.id, orderId);
+  }
+
   @Query(() => [Payment], { name: 'allPayments' })
   @UseGuards(GqlAuthGuard)
   async getAllPayments(): Promise<Payment[]> {

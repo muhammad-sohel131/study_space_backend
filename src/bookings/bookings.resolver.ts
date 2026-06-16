@@ -12,6 +12,8 @@ import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { User } from '../auth/schemas/user.schema';
 import { SeatsService } from '../seats/seats.service';
 import { CentersService } from '../centers/centers.service';
+import { PaginationArgs } from '../common/dto/pagination.args';
+import { PaginatedBookings } from './dto/paginated-bookings.response';
 
 @Resolver(() => Booking)
 export class BookingsResolver {
@@ -31,16 +33,19 @@ export class BookingsResolver {
     return this.bookingsService.create(user.id, createBookingInput);
   }
 
-  @Query(() => [Booking], { name: 'myBookings' })
+  @Query(() => PaginatedBookings, { name: 'myBookings' })
   @UseGuards(GqlAuthGuard)
-  async getMyBookings(@CurrentUser() user: User): Promise<Booking[]> {
-    return this.bookingsService.getMyBookings(user.id);
+  async getMyBookings(
+    @CurrentUser() user: User,
+    @Args() paginationArgs: PaginationArgs
+  ): Promise<PaginatedBookings> {
+    return this.bookingsService.getMyBookings(user.id, paginationArgs);
   }
 
-  @Query(() => [Booking], { name: 'allBookings' })
+  @Query(() => PaginatedBookings, { name: 'allBookings' })
   @UseGuards(GqlAuthGuard)
-  async getAllBookings(): Promise<Booking[]> {
-    return this.bookingsService.findAll();
+  async getAllBookings(@Args() paginationArgs: PaginationArgs): Promise<PaginatedBookings> {
+    return this.bookingsService.findAll(paginationArgs);
   }
 
   @Mutation(() => Booking)

@@ -9,9 +9,13 @@ export class Payment extends Document {
   @Field(() => ID)
   id: string;
 
-  @Field(() => ID)
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Booking', required: true })
-  bookingId: string;
+  @Field(() => ID, { nullable: true })
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Booking', required: false })
+  bookingId?: string;
+
+  @Field(() => ID, { nullable: true })
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Order', required: false })
+  orderId?: string;
 
   @Field(() => ID)
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })

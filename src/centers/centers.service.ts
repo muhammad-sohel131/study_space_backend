@@ -5,6 +5,8 @@ import { Center } from './schemas/center.schema';
 import { CreateCenterInput } from './dto/create-center.input';
 import { UpdateCenterInput } from './dto/update-center.input';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { PaginationArgs } from '../common/dto/pagination.args';
+import { PaginatedCenters } from './dto/paginated-centers.response';
 
 @Injectable()
 export class CentersService {
@@ -18,8 +20,22 @@ export class CentersService {
     return center.save();
   }
 
-  async findAll(): Promise<Center[]> {
-    return this.centerModel.find().exec();
+  async findAll(paginationArgs: PaginationArgs): Promise<PaginatedCenters> {
+    const { page, limit } = paginationArgs;
+    const skip = (page - 1) * limit;
+
+    const [data, totalCount] = await Promise.all([
+      this.centerModel.find().skip(skip).limit(limit).exec(),
+      this.centerModel.countDocuments().exec()
+    ]);
+
+    const totalPages = Math.ceil(totalCount / limit);
+
+    return {
+      data,
+      totalCount,
+      totalPages,
+    };
   }
 
   async findOne(id: string): Promise<Center | null> {

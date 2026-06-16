@@ -23,6 +23,7 @@ export class CloudinaryController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadImage(@UploadedFile() file: Express.Multer.File) {
     const result = await this.cloudinaryService.uploadImage(file);
+    console.log('Cloudinary upload result:', result);
     return {
       url: result.secure_url,
       public_id: result.public_id,
