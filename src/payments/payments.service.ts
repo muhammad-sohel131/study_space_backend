@@ -100,14 +100,21 @@ export class PaymentsService {
     if (payment.bookingId) {
       await this.bookingModel.findByIdAndUpdate(payment.bookingId, { paymentStatus: PaymentStatus.PAID, status: BookingStatus.CONFIRMED });
     } else if (payment.orderId) {
-      const order = await this.orderModel.findByIdAndUpdate(payment.orderId, { paymentStatus: OrderPaymentStatus.PAID, status: OrderStatus.CONFIRMED }, { new: true });
+      const order = await this.orderModel.findByIdAndUpdate(payment.orderId, { paymentStatus: OrderPaymentStatus.PAID, status: OrderStatus.CONFIRMED }, { new: true }).populate('items.bookId');
       if (order && order.items && order.items.length > 0) {
+        let allPdf = true;
         for (const item of order.items) {
-          const book = await this.bookModel.findById(item.bookId);
+          const book = await this.bookModel.findById((item as any).bookId?._id || item.bookId);
           if (book) {
             book.stock -= item.quantity;
             await book.save();
+            if (book.productType !== 'pdf') allPdf = false;
           }
+        }
+        // Auto-deliver if all items are soft/PDF products
+        if (allPdf) {
+          order.deliveryStatus = 'delivered' as any;
+          await order.save();
         }
       }
     }
