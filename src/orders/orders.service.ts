@@ -13,35 +13,50 @@ export class OrdersService {
   ) {}
 
   async buyBook(userId: string, createOrderInput: CreateOrderInput): Promise<Order> {
-    const { bookId, quantity } = createOrderInput;
+    const { items } = createOrderInput;
 
-    const book = await this.bookModel.findById(bookId);
-    if (!book) {
-      throw new NotFoundException('Book not found');
+    if (!items || items.length === 0) {
+      throw new BadRequestException('Order must contain at least one item');
     }
-    if (book.stock < quantity) {
-      throw new BadRequestException('Not enough stock');
+
+    let totalAmount = 0;
+    const validatedItems: { bookId: string; quantity: number }[] = [];
+
+    for (const item of items) {
+      const book = await this.bookModel.findById(item.bookId);
+      if (!book) {
+        throw new NotFoundException(`Book not found for ID: ${item.bookId}`);
+      }
+      if (book.stock < item.quantity) {
+        throw new BadRequestException(`Not enough stock for book: ${book.title}`);
+      }
+      totalAmount += book.price * item.quantity;
+      validatedItems.push({ bookId: item.bookId, quantity: item.quantity });
     }
 
     const order = new this.orderModel({
       userId,
-      bookId,
-      quantity,
+      items: validatedItems,
       status: OrderStatus.PENDING,
       paymentStatus: PaymentStatus.PENDING,
-      totalAmount: book.price * quantity,
+      totalAmount,
     });
 
     return order.save();
   }
 
   async myOrders(userId: string): Promise<Order[]> {
-    const orders = await this.orderModel.find({ userId }).populate('bookId').sort({ createdAt: -1 }).exec();
+    const orders = await this.orderModel.find({ userId }).populate('items.bookId').sort({ createdAt: -1 }).exec();
     return orders.map(order => {
       const obj: any = order.toObject();
-      obj.book = obj.bookId;
-      obj.bookId = obj.book?._id?.toString() || '';
       obj.id = obj._id?.toString() || '';
+      if (obj.items && Array.isArray(obj.items)) {
+        obj.items = obj.items.map((item: any) => {
+          item.book = item.bookId;
+          item.bookId = item.book?._id?.toString() || '';
+          return item;
+        });
+      }
       return obj as Order;
     });
   }

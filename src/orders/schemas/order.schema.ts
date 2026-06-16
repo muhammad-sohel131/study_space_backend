@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ObjectType, Field, ID, Int } from '@nestjs/graphql';
 import { Document, Schema as MongooseSchema } from 'mongoose';
-import { Book } from '../../books/schemas/book.schema';
+import { Book, BookSchema } from '../../books/schemas/book.schema';
 
 export enum OrderStatus {
   PENDING = 'pending',
@@ -15,6 +15,18 @@ export enum PaymentStatus {
 }
 
 @ObjectType()
+export class OrderItem {
+  @Field(() => ID)
+  bookId: string;
+
+  @Field(() => Int)
+  quantity: number;
+
+  @Field(() => Book, { nullable: true })
+  book?: Book;
+}
+
+@ObjectType()
 @Schema({ timestamps: true })
 export class Order extends Document {
   @Field(() => ID)
@@ -24,13 +36,12 @@ export class Order extends Document {
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })
   userId: string;
 
-  @Field(() => ID)
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Book', required: true })
-  bookId: string;
-
-  @Field(() => Int)
-  @Prop({ required: true, default: 1 })
-  quantity: number;
+  @Field(() => [OrderItem])
+  @Prop([{
+    bookId: { type: MongooseSchema.Types.ObjectId, ref: 'Book', required: true },
+    quantity: { type: Number, required: true, default: 1 }
+  }])
+  items: { bookId: string; quantity: number }[];
 
   @Field()
   @Prop({ required: true, enum: OrderStatus, default: OrderStatus.PENDING })
@@ -43,9 +54,6 @@ export class Order extends Document {
   @Field(() => Int)
   @Prop({ required: true, default: 0 })
   totalAmount: number;
-
-  @Field(() => Book, { nullable: true })
-  book?: Book;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);

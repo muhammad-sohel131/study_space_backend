@@ -1,8 +1,9 @@
 import { InputType, Field, Int } from '@nestjs/graphql';
-import { IsNotEmpty, IsMongoId, IsNumber, Min } from 'class-validator';
+import { IsNotEmpty, IsMongoId, IsNumber, Min, ValidateNested, IsArray } from 'class-validator';
+import { Type } from 'class-transformer';
 
 @InputType()
-export class CreateOrderInput {
+export class OrderItemInput {
   @Field()
   @IsNotEmpty()
   @IsMongoId()
@@ -13,4 +14,13 @@ export class CreateOrderInput {
   @IsNumber()
   @Min(1)
   quantity: number;
+}
+
+@InputType()
+export class CreateOrderInput {
+  @Field(() => [OrderItemInput])
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => OrderItemInput)
+  items: OrderItemInput[];
 }

@@ -75,8 +75,7 @@ input CreateCenterInput {
 }
 
 input CreateOrderInput {
-  bookId: String!
-  quantity: Int! = 1
+  items: [OrderItemInput!]!
 }
 
 input CreateSeatInput {
@@ -124,14 +123,23 @@ type Mutation {
 }
 
 type Order {
-  book: Book
-  bookId: ID!
   id: ID!
+  items: [OrderItem!]!
   paymentStatus: String!
-  quantity: Int!
   status: String!
   totalAmount: Int!
   userId: ID!
+}
+
+type OrderItem {
+  book: Book
+  bookId: ID!
+  quantity: Int!
+}
+
+input OrderItemInput {
+  bookId: String!
+  quantity: Int! = 1
 }
 
 type PaginatedBookings {

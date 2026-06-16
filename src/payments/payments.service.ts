@@ -101,11 +101,13 @@ export class PaymentsService {
       await this.bookingModel.findByIdAndUpdate(payment.bookingId, { paymentStatus: PaymentStatus.PAID, status: BookingStatus.CONFIRMED });
     } else if (payment.orderId) {
       const order = await this.orderModel.findByIdAndUpdate(payment.orderId, { paymentStatus: OrderPaymentStatus.PAID, status: OrderStatus.CONFIRMED }, { new: true });
-      if (order) {
-        const book = await this.bookModel.findById(order.bookId);
-        if (book) {
-          book.stock -= order.quantity;
-          await book.save();
+      if (order && order.items && order.items.length > 0) {
+        for (const item of order.items) {
+          const book = await this.bookModel.findById(item.bookId);
+          if (book) {
+            book.stock -= item.quantity;
+            await book.save();
+          }
         }
       }
     }
