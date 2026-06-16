@@ -116,6 +116,7 @@ type Mutation {
   initOrderPayment(orderId: String!): InitPaymentResponse!
   initPayment(bookingId: String!): InitPaymentResponse!
   login(loginInput: LoginInput!): AuthResponse!
+  markOrderDelivered(orderId: String!): Order!
   register(registerInput: RegisterInput!): AuthResponse!
   updateBook(updateBookInput: UpdateBookInput!): Book!
   updateCenter(updateCenterInput: UpdateCenterInput!): Center
@@ -123,6 +124,7 @@ type Mutation {
 }
 
 type Order {
+  deliveryStatus: String!
   id: ID!
   items: [OrderItem!]!
   paymentStatus: String!
@@ -172,6 +174,7 @@ type Payment {
 
 type Query {
   allBookings(limit: Int = 10, page: Int = 1): PaginatedBookings!
+  allOrders: [Order!]!
   allPayments: [Payment!]!
   availableSeats(centerId: String!, endTime: String!, startTime: String!): [Seat!]!
   books(centerId: String, limit: Int = 10, page: Int = 1): PaginatedBooks!

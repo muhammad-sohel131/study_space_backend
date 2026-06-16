@@ -14,6 +14,11 @@ export enum PaymentStatus {
   FAILED = 'failed',
 }
 
+export enum DeliveryStatus {
+  PENDING = 'pending',
+  DELIVERED = 'delivered',
+}
+
 @ObjectType()
 export class OrderItem {
   @Field(() => ID)
@@ -54,6 +59,10 @@ export class Order extends Document {
   @Field(() => Int)
   @Prop({ required: true, default: 0 })
   totalAmount: number;
+
+  @Field()
+  @Prop({ required: false, enum: DeliveryStatus, default: DeliveryStatus.PENDING })
+  deliveryStatus: DeliveryStatus;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);
