@@ -21,6 +21,10 @@ export class Book extends Document {
   @Prop({ required: true })
   price: number;
 
+  @Field(() => Float, { nullable: true, defaultValue: 15 })
+  @Prop({ required: false, default: 15 })
+  borrowPricePerDay?: number;
+
   @Field(() => Int)
   @Prop({ required: true, default: 0 })
   stock: number;

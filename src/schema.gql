@@ -14,6 +14,7 @@ type BedUnitStatus {
 
 type Book {
   author: String!
+  borrowPricePerDay: Float
   center: Center
   centerId: ID!
   coverImageUrl: String
@@ -57,8 +58,11 @@ type Borrow {
   durationDays: Int!
   id: ID!
   notes: String
+  paymentStatus: String
+  pricePerDay: Float
   returnDate: DateTime
   status: String!
+  totalCost: Float
   user: User
   userId: ID!
 }
@@ -85,6 +89,7 @@ type Center {
 
 input CreateBookInput {
   author: String!
+  borrowPricePerDay: Float = 15
   centerId: String!
   coverImageUrl: String
   fullPdfUrl: String
@@ -281,6 +286,7 @@ type StayAvailability {
 
 input UpdateBookInput {
   author: String
+  borrowPricePerDay: Float = 15
   centerId: String
   coverImageUrl: String
   fullPdfUrl: String

@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { ObjectType, Field, ID, Int } from '@nestjs/graphql';
+import { ObjectType, Field, ID, Int, Float } from '@nestjs/graphql';
 import { Document, Schema as MongooseSchema } from 'mongoose';
 import { Book } from '../../books/schemas/book.schema';
 import { Center } from '../../centers/schemas/center.schema';
@@ -44,6 +44,18 @@ export class Borrow extends Document {
   @Field(() => Int)
   @Prop({ required: true, default: 7 })
   durationDays: number;
+
+  @Field(() => Float, { nullable: true, defaultValue: 15 })
+  @Prop({ required: false, default: 15 })
+  pricePerDay?: number;
+
+  @Field(() => Float, { nullable: true, defaultValue: 105 })
+  @Prop({ required: false, default: 105 })
+  totalCost?: number;
+
+  @Field({ nullable: true, defaultValue: 'paid' })
+  @Prop({ required: false, default: 'paid' })
+  paymentStatus?: string;
 
   @Field()
   @Prop({ required: true, enum: BorrowStatus, default: BorrowStatus.BORROWED })

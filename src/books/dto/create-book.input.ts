@@ -19,6 +19,11 @@ export class CreateBookInput {
   @Min(0)
   price: number;
 
+  @Field(() => Float, { nullable: true, defaultValue: 15 })
+  @IsNumber()
+  @Min(0)
+  borrowPricePerDay?: number;
+
   @Field(() => Int)
   @IsNotEmpty()
   @IsNumber()

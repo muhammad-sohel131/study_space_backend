@@ -34,6 +34,8 @@ export class BorrowsService {
 
     const now = new Date();
     const dueDate = new Date(now.getTime() + durationDays * 24 * 60 * 60 * 1000);
+    const pricePerDay = book.borrowPricePerDay || 15;
+    const totalCost = pricePerDay * durationDays;
 
     const borrow = new this.borrowModel({
       userId,
@@ -42,8 +44,11 @@ export class BorrowsService {
       borrowDate: now,
       dueDate,
       durationDays,
+      pricePerDay,
+      totalCost,
+      paymentStatus: 'paid',
       status: BorrowStatus.BORROWED,
-      notes: notes || `Borrowed from study center for ${durationDays} days`,
+      notes: notes || `Borrowed for ${durationDays} days (Rental Fee: ৳${totalCost})`,
     });
 
     const saved = await borrow.save();
