@@ -8,6 +8,7 @@ import { Booking, BookingSchema } from '../bookings/schemas/booking.schema';
 
 import { Order, OrderSchema } from '../orders/schemas/order.schema';
 import { Book, BookSchema } from '../books/schemas/book.schema';
+import { Borrow, BorrowSchema } from '../borrows/schemas/borrow.schema';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { Book, BookSchema } from '../books/schemas/book.schema';
       { name: Booking.name, schema: BookingSchema },
       { name: Order.name, schema: OrderSchema },
       { name: Book.name, schema: BookSchema },
+      { name: Borrow.name, schema: BorrowSchema },
     ]),
   ],
   providers: [PaymentsService, PaymentsResolver],

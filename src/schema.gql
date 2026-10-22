@@ -165,6 +165,7 @@ type Mutation {
   deleteBook(id: String!): Boolean!
   deleteCenter(id: String!): Boolean!
   deleteSeat(id: String!): Boolean!
+  initBorrowPayment(borrowId: String!): InitPaymentResponse!
   initOrderPayment(orderId: String!): InitPaymentResponse!
   initPayment(bookingId: String!): InitPaymentResponse!
   login(loginInput: LoginInput!): AuthResponse!
@@ -218,6 +219,7 @@ type PaginatedCenters {
 type Payment {
   amount: Float!
   bookingId: ID
+  borrowId: ID
   id: ID!
   orderId: ID
   status: String!

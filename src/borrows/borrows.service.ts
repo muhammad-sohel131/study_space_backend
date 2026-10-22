@@ -28,10 +28,6 @@ export class BorrowsService {
       throw new BadRequestException(`No physical copies currently available for "${book.title}". All copies are checked out.`);
     }
 
-    // Decrement stock by 1
-    book.stock -= 1;
-    await book.save();
-
     const now = new Date();
     const dueDate = new Date(now.getTime() + durationDays * 24 * 60 * 60 * 1000);
     const pricePerDay = book.borrowPricePerDay || 15;
@@ -46,8 +42,8 @@ export class BorrowsService {
       durationDays,
       pricePerDay,
       totalCost,
-      paymentStatus: 'paid',
-      status: BorrowStatus.BORROWED,
+      paymentStatus: 'pending',
+      status: BorrowStatus.PENDING_PAYMENT,
       notes: notes || `Borrowed for ${durationDays} days (Rental Fee: ৳${totalCost})`,
     });
 

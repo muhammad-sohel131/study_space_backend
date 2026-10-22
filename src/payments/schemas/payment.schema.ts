@@ -17,6 +17,10 @@ export class Payment extends Document {
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Order', required: false })
   orderId?: string;
 
+  @Field(() => ID, { nullable: true })
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Borrow', required: false })
+  borrowId?: string;
+
   @Field(() => ID)
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })
   userId: string;

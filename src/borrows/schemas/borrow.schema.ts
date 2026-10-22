@@ -6,6 +6,7 @@ import { Center } from '../../centers/schemas/center.schema';
 import { User } from '../../auth/schemas/user.schema';
 
 export enum BorrowStatus {
+  PENDING_PAYMENT = 'pending_payment',
   BORROWED = 'borrowed',
   RETURNED = 'returned',
   OVERDUE = 'overdue',

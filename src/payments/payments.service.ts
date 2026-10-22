@@ -6,6 +6,7 @@ import { Payment } from './schemas/payment.schema';
 import { Booking, BookingStatus, PaymentStatus } from '../bookings/schemas/booking.schema';
 import { Order, OrderStatus, PaymentStatus as OrderPaymentStatus } from '../orders/schemas/order.schema';
 import { Book } from '../books/schemas/book.schema';
+import { Borrow, BorrowStatus } from '../borrows/schemas/borrow.schema';
 import { InitPaymentResponse } from './dto/init-payment.response';
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const SSLCommerzPayment = require('sslcommerz-lts');
@@ -19,6 +20,7 @@ export class PaymentsService {
     @InjectModel(Booking.name) private bookingModel: Model<Booking>,
     @InjectModel(Order.name) private orderModel: Model<Order>,
     @InjectModel(Book.name) private bookModel: Model<Book>,
+    @InjectModel(Borrow.name) private borrowModel: Model<Borrow>,
     private configService: ConfigService,
   ) {
     const store_id = this.configService.get<string>('SSLCOMMERZ_STORE_ID');
@@ -55,6 +57,26 @@ export class PaymentsService {
     await payment.save();
 
     const data = this.buildPaymentData(order.totalAmount, tran_id, 'Book Purchase');
+    return this.processSslczInit(data);
+  }
+
+  async initBorrowPayment(userId: string, borrowId: string): Promise<InitPaymentResponse> {
+    const borrow = await this.borrowModel.findOne({ _id: borrowId, userId });
+    if (!borrow) throw new NotFoundException('Borrow record not found');
+    if (borrow.paymentStatus === 'paid') throw new BadRequestException('Borrow rental is already paid');
+
+    const amount = borrow.totalCost || 15;
+    const tran_id = `BOR_${Date.now()}_${borrowId}`;
+    const payment = new this.paymentModel({
+      borrowId,
+      userId,
+      amount,
+      transactionId: tran_id,
+      status: PaymentStatus.PENDING,
+    });
+    await payment.save();
+
+    const data = this.buildPaymentData(amount, tran_id, 'Book Rental');
     return this.processSslczInit(data);
   }
 
@@ -117,6 +139,20 @@ export class PaymentsService {
           await order.save();
         }
       }
+    } else if (payment.borrowId) {
+      const borrow = await this.borrowModel.findById(payment.borrowId);
+      if (borrow) {
+        borrow.paymentStatus = 'paid';
+        borrow.status = BorrowStatus.BORROWED;
+        await borrow.save();
+
+        // Decrement physical book stock
+        const book = await this.bookModel.findById(borrow.bookId);
+        if (book && book.stock > 0) {
+          book.stock -= 1;
+          await book.save();
+        }
+      }
     }
     return 'Payment Successful. You can close this window.';
   }
@@ -132,6 +168,8 @@ export class PaymentsService {
       await this.bookingModel.findByIdAndUpdate(payment.bookingId, { paymentStatus: PaymentStatus.FAILED, status: BookingStatus.CANCELLED });
     } else if (payment.orderId) {
       await this.orderModel.findByIdAndUpdate(payment.orderId, { paymentStatus: OrderPaymentStatus.FAILED });
+    } else if (payment.borrowId) {
+      await this.borrowModel.findByIdAndUpdate(payment.borrowId, { paymentStatus: 'failed' });
     }
     return 'Payment Failed.';
   }
@@ -142,6 +180,10 @@ export class PaymentsService {
 
     payment.status = PaymentStatus.FAILED;
     await payment.save();
+
+    if (payment.borrowId) {
+      await this.borrowModel.findByIdAndUpdate(payment.borrowId, { paymentStatus: 'cancelled' });
+    }
     return 'Payment Cancelled.';
   }
 }
