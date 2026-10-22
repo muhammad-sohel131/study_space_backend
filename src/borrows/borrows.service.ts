@@ -91,21 +91,7 @@ export class BorrowsService {
       .sort({ createdAt: -1 })
       .exec();
 
-    const now = new Date();
-    return borrows.map((b) => {
-      const obj: any = b.toObject();
-      obj.id = obj._id?.toString() || '';
-      obj.book = obj.bookId;
-      obj.bookId = obj.book?._id?.toString() || '';
-      obj.center = obj.centerId;
-      obj.centerId = obj.center?._id?.toString() || '';
-
-      // Check overdue dynamically
-      if (obj.status === BorrowStatus.BORROWED && new Date(obj.dueDate) < now) {
-        obj.status = BorrowStatus.OVERDUE;
-      }
-      return obj as Borrow;
-    });
+    return borrows.map((b) => this.formatBorrow(b));
   }
 
   async allBorrows(): Promise<Borrow[]> {
@@ -117,22 +103,7 @@ export class BorrowsService {
       .sort({ createdAt: -1 })
       .exec();
 
-    const now = new Date();
-    return borrows.map((b) => {
-      const obj: any = b.toObject();
-      obj.id = obj._id?.toString() || '';
-      obj.book = obj.bookId;
-      obj.bookId = obj.book?._id?.toString() || '';
-      obj.center = obj.centerId;
-      obj.centerId = obj.center?._id?.toString() || '';
-      obj.user = obj.userId;
-      obj.userId = obj.user?._id?.toString() || '';
-
-      if (obj.status === BorrowStatus.BORROWED && new Date(obj.dueDate) < now) {
-        obj.status = BorrowStatus.OVERDUE;
-      }
-      return obj as Borrow;
-    });
+    return borrows.map((b) => this.formatBorrow(b));
   }
 
   private async findPopulatedById(id: string): Promise<Borrow> {
@@ -144,14 +115,61 @@ export class BorrowsService {
       .exec();
 
     if (!b) throw new NotFoundException('Borrow not found');
-    const obj: any = b.toObject();
-    obj.id = obj._id?.toString() || '';
-    obj.book = obj.bookId;
-    obj.bookId = obj.book?._id?.toString() || '';
-    obj.center = obj.centerId;
-    obj.centerId = obj.center?._id?.toString() || '';
-    obj.user = obj.userId;
-    obj.userId = obj.user?._id?.toString() || '';
+    return this.formatBorrow(b);
+  }
+
+  private formatBorrow(b: any): Borrow {
+    const obj: any = b.toObject ? b.toObject() : { ...b };
+    obj.id = obj._id?.toString() || obj.id || '';
+
+    // Handle populated Book
+    if (obj.bookId && typeof obj.bookId === 'object' && obj.bookId._id) {
+      obj.book = {
+        ...obj.bookId,
+        id: obj.bookId._id.toString(),
+      };
+      if (obj.book.centerId && typeof obj.book.centerId === 'object' && obj.book.centerId._id) {
+        obj.book.center = {
+          ...obj.book.centerId,
+          id: obj.book.centerId._id.toString(),
+        };
+        obj.book.centerId = obj.book.center.id;
+      }
+      obj.bookId = obj.book.id;
+    } else if (obj.book && obj.book._id) {
+      obj.book.id = obj.book._id.toString();
+      obj.bookId = obj.book.id;
+    }
+
+    // Handle populated Center
+    if (obj.centerId && typeof obj.centerId === 'object' && obj.centerId._id) {
+      obj.center = {
+        ...obj.centerId,
+        id: obj.centerId._id.toString(),
+      };
+      obj.centerId = obj.center.id;
+    } else if (obj.center && obj.center._id) {
+      obj.center.id = obj.center._id.toString();
+      obj.centerId = obj.center.id;
+    }
+
+    // Handle populated User
+    if (obj.userId && typeof obj.userId === 'object' && obj.userId._id) {
+      obj.user = {
+        ...obj.userId,
+        id: obj.userId._id.toString(),
+      };
+      obj.userId = obj.user.id;
+    } else if (obj.user && obj.user._id) {
+      obj.user.id = obj.user._id.toString();
+      obj.userId = obj.user.id;
+    }
+
+    const now = new Date();
+    if (obj.status === BorrowStatus.BORROWED && new Date(obj.dueDate) < now) {
+      obj.status = BorrowStatus.OVERDUE;
+    }
+
     return obj as Borrow;
   }
 }
