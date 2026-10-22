@@ -1,12 +1,12 @@
-import { InputType, Field } from '@nestjs/graphql';
-import { IsNotEmpty, IsMongoId, IsEnum, IsDateString } from 'class-validator';
+import { InputType, Field, Int } from '@nestjs/graphql';
+import { IsNotEmpty, IsMongoId, IsEnum, IsDateString, IsOptional, IsInt, IsString } from 'class-validator';
 
 @InputType()
 export class CreateBookingInput {
-  @Field()
-  @IsNotEmpty()
+  @Field({ nullable: true })
+  @IsOptional()
   @IsMongoId()
-  seatId: string;
+  seatId?: string;
 
   @Field()
   @IsNotEmpty()
@@ -25,6 +25,26 @@ export class CreateBookingInput {
 
   @Field()
   @IsNotEmpty()
-  @IsEnum(['hourly', 'monthly'])
+  @IsEnum(['hourly', 'monthly', 'stay'])
   bookingType: string;
+
+  @Field(() => Int, { nullable: true })
+  @IsOptional()
+  @IsInt()
+  stayNights?: number;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  roomType?: string;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  bedUnit?: string;
+
+  @Field(() => Int, { nullable: true })
+  @IsOptional()
+  @IsInt()
+  guestsCount?: number;
 }

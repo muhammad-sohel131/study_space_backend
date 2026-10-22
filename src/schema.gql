@@ -7,8 +7,14 @@ type AuthResponse {
   user: User!
 }
 
+type BedUnitStatus {
+  isBooked: Boolean!
+  unitNumber: String!
+}
+
 type Book {
   author: String!
+  center: Center
   centerId: ID!
   coverImageUrl: String
   fullPdfUrl: String
@@ -21,29 +27,60 @@ type Book {
 }
 
 type Booking {
+  bedUnit: String
   bookingType: String!
   center: Center
   centerId: ID!
   createdAt: DateTime!
   endTime: DateTime!
+  guestsCount: Int
   id: ID!
   paymentStatus: String!
+  roomType: String
   seat: Seat
-  seatId: ID!
+  seatId: ID
   startTime: DateTime!
   status: String!
+  stayNights: Int
   totalPrice: Float!
   user: User
   userId: ID!
 }
 
+type Borrow {
+  book: Book
+  bookId: ID!
+  borrowDate: DateTime!
+  center: Center
+  centerId: ID
+  dueDate: DateTime!
+  durationDays: Int!
+  id: ID!
+  notes: String
+  returnDate: DateTime
+  status: String!
+  user: User
+  userId: ID!
+}
+
+input BorrowBookInput {
+  bookId: String!
+  durationDays: Int! = 7
+  notes: String
+}
+
 type Center {
+  availableStayBeds: Int
   closingTime: String!
   coverImage: String
+  hasStayFacility: Boolean
   id: ID!
   location: String!
   name: String!
   openingTime: String!
+  stayAmenities: [String!]
+  stayPricePerNight: Float
+  stayRules: String
 }
 
 input CreateBookInput {
@@ -59,19 +96,28 @@ input CreateBookInput {
 }
 
 input CreateBookingInput {
+  bedUnit: String
   bookingType: String!
   centerId: String!
   endTime: String!
-  seatId: String!
+  guestsCount: Int
+  roomType: String
+  seatId: String
   startTime: String!
+  stayNights: Int
 }
 
 input CreateCenterInput {
+  availableStayBeds: Int
   closingTime: String!
   coverImage: String
+  hasStayFacility: Boolean
   location: String!
   name: String!
   openingTime: String!
+  stayAmenities: [String!]
+  stayPricePerNight: Float
+  stayRules: String
 }
 
 input CreateOrderInput {
@@ -104,6 +150,7 @@ input LoginInput {
 }
 
 type Mutation {
+  borrowBook(borrowBookInput: BorrowBookInput!): Borrow!
   buyBook(createOrderInput: CreateOrderInput!): Order!
   cancelBooking(bookingId: String!): Booking!
   createBook(createBookInput: CreateBookInput!): Book!
@@ -118,6 +165,7 @@ type Mutation {
   login(loginInput: LoginInput!): AuthResponse!
   markOrderDelivered(orderId: String!): Order!
   register(registerInput: RegisterInput!): AuthResponse!
+  returnBook(borrowId: String!): Borrow!
   updateBook(updateBookInput: UpdateBookInput!): Book!
   updateCenter(updateCenterInput: UpdateCenterInput!): Center
   updateSeat(updateSeatInput: UpdateSeatInput!): Seat
@@ -174,6 +222,7 @@ type Payment {
 
 type Query {
   allBookings(limit: Int = 10, page: Int = 1): PaginatedBookings!
+  allBorrows: [Borrow!]!
   allOrders: [Order!]!
   allPayments: [Payment!]!
   availableSeats(centerId: String!, endTime: String!, startTime: String!): [Seat!]!
@@ -181,8 +230,10 @@ type Query {
   center(id: String!): Center!
   centers(limit: Int = 10, page: Int = 1): PaginatedCenters!
   myBookings(limit: Int = 10, page: Int = 1): PaginatedBookings!
+  myBorrows: [Borrow!]!
   myOrders: [Order!]!
   seats(centerId: String!): [Seat!]!
+  stayAvailability(centerId: String!, endTime: String!, startTime: String!): StayAvailability!
 }
 
 input RegisterInput {
@@ -197,6 +248,15 @@ enum Role {
   STUDENT
 }
 
+type RoomTypeAvailability {
+  bedUnits: [BedUnitStatus!]!
+  bookedBeds: Int!
+  emptyBeds: Int!
+  isAvailable: Boolean!
+  roomType: String!
+  totalBeds: Int!
+}
+
 type Seat {
   bookings: [Booking!]
   centerId: ID!
@@ -208,6 +268,15 @@ type Seat {
   type: String!
   x: Int
   y: Int
+}
+
+type StayAvailability {
+  availableBeds: Int!
+  bookedBeds: Int!
+  isAvailable: Boolean!
+  roomTypeBreakdown: [RoomTypeAvailability!]!
+  statusNote: String
+  totalBeds: Int!
 }
 
 input UpdateBookInput {
@@ -224,12 +293,17 @@ input UpdateBookInput {
 }
 
 input UpdateCenterInput {
+  availableStayBeds: Int
   closingTime: String
   coverImage: String
+  hasStayFacility: Boolean
   id: String!
   location: String
   name: String
   openingTime: String
+  stayAmenities: [String!]
+  stayPricePerNight: Float
+  stayRules: String
 }
 
 input UpdateSeatInput {

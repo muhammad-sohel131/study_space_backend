@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { ObjectType, Field, ID, Float } from '@nestjs/graphql';
+import { ObjectType, Field, ID, Float, Int } from '@nestjs/graphql';
 import { Document, Schema as MongooseSchema } from 'mongoose';
 import { Seat } from '../../seats/schemas/seat.schema';
 import { Center } from '../../centers/schemas/center.schema';
@@ -29,9 +29,9 @@ export class Booking extends Document {
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', required: true })
   userId: string;
 
-  @Field(() => ID)
-  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Seat', required: true })
-  seatId: string;
+  @Field(() => ID, { nullable: true })
+  @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Seat', required: false })
+  seatId?: string;
 
   @Field(() => ID)
   @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'Center', required: true })
@@ -46,8 +46,24 @@ export class Booking extends Document {
   endTime: Date;
 
   @Field()
-  @Prop({ required: true, enum: ['hourly', 'monthly'] })
+  @Prop({ required: true, enum: ['hourly', 'monthly', 'stay'] })
   bookingType: string;
+
+  @Field(() => Int, { nullable: true })
+  @Prop({ default: 1 })
+  stayNights?: number;
+
+  @Field({ nullable: true })
+  @Prop()
+  roomType?: string;
+
+  @Field({ nullable: true })
+  @Prop()
+  bedUnit?: string;
+
+  @Field(() => Int, { nullable: true })
+  @Prop({ default: 1 })
+  guestsCount?: number;
 
   @Field(() => Float)
   @Prop({ required: true })

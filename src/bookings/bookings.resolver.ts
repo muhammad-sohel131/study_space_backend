@@ -14,6 +14,7 @@ import { SeatsService } from '../seats/seats.service';
 import { CentersService } from '../centers/centers.service';
 import { PaginationArgs } from '../common/dto/pagination.args';
 import { PaginatedBookings } from './dto/paginated-bookings.response';
+import { StayAvailability } from './dto/stay-availability.response';
 
 @Resolver(() => Booking)
 export class BookingsResolver {
@@ -66,8 +67,18 @@ export class BookingsResolver {
     return this.bookingsService.getAvailableSeats(centerId, startTime, endTime);
   }
 
-  @ResolveField(() => Seat)
+  @Query(() => StayAvailability, { name: 'stayAvailability' })
+  async getStayAvailability(
+    @Args('centerId') centerId: string,
+    @Args('startTime') startTime: string,
+    @Args('endTime') endTime: string,
+  ): Promise<StayAvailability> {
+    return this.bookingsService.getStayAvailability(centerId, startTime, endTime);
+  }
+
+  @ResolveField(() => Seat, { nullable: true })
   async seat(@Parent() booking: Booking): Promise<Seat | null> {
+    if (!booking.seatId) return null;
     return this.seatsService.findById(booking.seatId);
   }
 

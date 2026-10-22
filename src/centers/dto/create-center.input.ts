@@ -1,5 +1,5 @@
-import { InputType, Field } from '@nestjs/graphql';
-import { IsNotEmpty, IsString, Matches } from 'class-validator';
+import { InputType, Field, Float, Int } from '@nestjs/graphql';
+import { IsNotEmpty, IsString, Matches, IsOptional, IsBoolean, IsNumber } from 'class-validator';
 
 @InputType()
 export class CreateCenterInput {
@@ -24,6 +24,31 @@ export class CreateCenterInput {
   closingTime: string;
 
   @Field({ nullable: true })
+  @IsOptional()
   @IsString()
   coverImage?: string;
+
+  @Field(() => Boolean, { nullable: true })
+  @IsOptional()
+  @IsBoolean()
+  hasStayFacility?: boolean;
+
+  @Field(() => Float, { nullable: true })
+  @IsOptional()
+  @IsNumber()
+  stayPricePerNight?: number;
+
+  @Field(() => [String], { nullable: true })
+  @IsOptional()
+  stayAmenities?: string[];
+
+  @Field(() => Int, { nullable: true })
+  @IsOptional()
+  @IsNumber()
+  availableStayBeds?: number;
+
+  @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
+  stayRules?: string;
 }

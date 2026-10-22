@@ -19,12 +19,30 @@ export class BooksService {
   async getBooks(paginationArgs: PaginationArgs, centerId?: string): Promise<PaginatedBooks> {
     const { page, limit } = paginationArgs;
     const skip = (page - 1) * limit;
-    const filter = centerId ? { centerId } : {};
+    const filter: any = {};
+    if (centerId && centerId.trim() && centerId !== 'ALL') {
+      filter.centerId = centerId;
+    }
 
-    const [data, totalCount] = await Promise.all([
-      this.bookModel.find(filter).skip(skip).limit(limit).exec(),
+    const [rawBooks, totalCount] = await Promise.all([
+      this.bookModel.find(filter).populate('centerId').skip(skip).limit(limit).exec(),
       this.bookModel.countDocuments(filter).exec()
     ]);
+
+    const data = rawBooks.map((b) => {
+      const obj: any = b.toObject();
+      obj.id = obj._id?.toString() || '';
+      if (obj.centerId && typeof obj.centerId === 'object' && obj.centerId._id) {
+        obj.center = {
+          ...obj.centerId,
+          id: obj.centerId._id.toString(),
+        };
+        obj.centerId = obj.center.id;
+      } else {
+        obj.centerId = (b.centerId as any)?.toString() || '';
+      }
+      return obj as Book;
+    });
 
     const totalPages = Math.ceil(totalCount / limit);
 
