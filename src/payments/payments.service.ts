@@ -81,14 +81,20 @@ export class PaymentsService {
   }
 
   private buildPaymentData(amount: number, tran_id: string, product_name: string) {
+    const backendUrl = (
+      this.configService.get<string>('BACKEND_URL') ||
+      this.configService.get<string>('RENDER_EXTERNAL_URL') ||
+      'http://localhost:5000'
+    ).replace(/\/+$/, '');
+
     return {
       total_amount: amount,
       currency: 'BDT',
       tran_id: tran_id,
-      success_url: `http://localhost:5000/api/payment/success?tran_id=${tran_id}`,
-      fail_url: `http://localhost:5000/api/payment/fail?tran_id=${tran_id}`,
-      cancel_url: `http://localhost:5000/api/payment/cancel?tran_id=${tran_id}`,
-      ipn_url: 'http://localhost:5000/api/payment/ipn',
+      success_url: `${backendUrl}/api/payment/success?tran_id=${tran_id}`,
+      fail_url: `${backendUrl}/api/payment/fail?tran_id=${tran_id}`,
+      cancel_url: `${backendUrl}/api/payment/cancel?tran_id=${tran_id}`,
+      ipn_url: `${backendUrl}/api/payment/ipn`,
       shipping_method: 'No',
       product_name: product_name,
       product_category: 'Service',
